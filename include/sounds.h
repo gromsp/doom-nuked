@@ -12,6 +12,7 @@ typedef struct s_music
 	Mix_Music	*mus3;
 	Mix_Music	*mus4;
 	Mix_Music	*mus5;
+	int			nummus;
 }				t_music;
 
 typedef struct	s_snd
