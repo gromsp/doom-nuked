@@ -25,19 +25,36 @@ void	initsdl(t_main *mlx)
 	if (Mix_OpenAudio( 22050, MIX_DEFAULT_FORMAT, 2, 4096 ) == -1) 
 		return ;
 	snd->music->mus1 = Mix_LoadMUS( "/sound/blade1.ogg");
-	// snd->music->mus2 = Mix_LoadMUS( "/sound/blade1.ogg");
-	// snd->music->mus3 = Mix_LoadMUS( "/sound/blade1.ogg");
-	// snd->music->mus4 = Mix_LoadMUS( "/sound/blade1.ogg");
-	// snd->music->mus5 = Mix_LoadMUS( "/sound/blade1.ogg");
-	if (!(snd->music->mus1) || !(snd->music->mus1) || !(snd->music->mus1) || !(snd->music->mus1) || !(snd->music->mus1))
+	snd->music->mus1 = Mix_LoadMUS( "D:\\Coding\\doom-nuked\\sound\\blade2.ogg");
+	snd->music->mus2 = Mix_LoadMUS( "D:\\Coding\\doom-nuked\\sound\\blade4.ogg");
+	// snd->music->mus2 = Mix_LoadMUS( "/sound/blade2.ogg");
+	// snd->music->mus3 = Mix_LoadMUS( "/sound/blade3.ogg");
+	// snd->music->mus4 = Mix_LoadMUS( "/sound/blade4.ogg");
+	// snd->music->mus5 = Mix_LoadMUS( "/sound/blade5.ogg");
+	if (!(snd->music->mus1) || !(snd->music->mus2) || !(snd->music->mus3) || !(snd->music->mus4) || !(snd->music->mus5))
 		return ;
 }
 
 void	playmusic(t_music *music)
 {
-	if (Mix_PlayMusic(music->mus1, 0) == -1)
-		return ;		
-	while (Mix_PlayingMusic());
+	while (1)
+	{
+		if (Mix_PlayMusic(music->mus1, 0) == -1)
+			return;
+		while (Mix_PlayingMusic());
+		if (Mix_PlayMusic(music->mus2, 0) == -1)
+			return;
+		while (Mix_PlayingMusic());
+//		if (Mix_PlayMusic(music->mus3, 0) == -1)
+//			return;
+//		while (Mix_PlayingMusic());
+//		if (Mix_PlayMusic(music->mus4, 0) == -1)
+//			return;
+//		while (Mix_PlayingMusic());
+//		if (Mix_PlayMusic(music->mus5, 0) == -1)
+//			return;
+//		while (Mix_PlayingMusic());
+	}
 }
 
 void	closesdl(t_snd *snd)
@@ -56,7 +73,7 @@ int main(int argc, char* argv[])
 	t_main	*mlx;
 	mlx = malloc(sizeof(t_main));
 	initsdl(mlx);
-	playmusic(mlx->snd->music);
+//	playmusic(mlx->snd->music);
 	SDL_Delay(2000);
 	closesdl(mlx->snd);
 	return 0;
