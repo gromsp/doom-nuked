@@ -20,6 +20,7 @@ void	initsdl(t_main *mlx)
 	t_snd *snd;
 	snd = malloc(sizeof(t_snd));
 	snd->music = malloc(sizeof(t_music));
+	snd->chunks = malloc(sizeof(t_bup));
 	mlx->snd = snd;
 //	if (SDL_Init(SDL_INIT_AUDIO) < 0)
 //		return ;
@@ -30,7 +31,7 @@ void	initsdl(t_main *mlx)
 							  SDL_WINDOW_SHOWN);
 	if (Mix_OpenAudio( 22050, MIX_DEFAULT_FORMAT, 2, 4096 ) == -1) 
 		return ;
-	snd->music->mus1 = Mix_LoadMUS( "/sound/blade1.ogg");
+	snd->music->mus1 = Mix_LoadMUS( "/sound/blade1.ogg"); //объединить все дорожки музщыки в одну для оптимизации
 	snd->music->mus1 = Mix_LoadMUS( "D:\\Coding\\doom-nuked\\sound\\blade2.ogg");
 	snd->music->mus2 = Mix_LoadMUS( "D:\\Coding\\doom-nuked\\sound\\blade4.ogg");
 	// snd->music->mus2 = Mix_LoadMUS( "/sound/blade2.ogg");
@@ -38,8 +39,10 @@ void	initsdl(t_main *mlx)
 	// snd->music->mus4 = Mix_LoadMUS( "/sound/blade4.ogg");
 	// snd->music->mus5 = Mix_LoadMUS( "/sound/blade5.ogg");
 	mlx->snd->music->nummus = 1;
+	mlx->snd->chunks->fire = Mix_LoadWAV("D:\\Coding\\doom-nuked\\sound\\fire_zkyuzme_.wav");
 	if (!(snd->music->mus1) || !(snd->music->mus2) || !(snd->music->mus3) || !(snd->music->mus4) || !(snd->music->mus5))
 		return ;
+	Mix_AllocateChannels (16);
 }
 
 void	playmusic(t_music *music)
@@ -79,6 +82,30 @@ void	closesdl(t_snd *snd)
     SDL_Quit();	
 }
 
+void 	sound_eff(t_main *mlx)
+{
+	t_bup *bup;
+	t_plr *plr;
+	t_obj *obj;
+	int rast;
+	int i;
+
+	bup = mlx->snd->chunks;
+	plr = mlx->plr;
+	obj = mlx->obj;
+	rast = obj->dist - plr->x;
+	if (rast <= 10)
+	{
+		Mix_VolumeChunk(mlx->snd->chunks->fire, 128);
+		obj->chan = Mix_PlayChannel(-1,obj->chunk,-1);
+		if (rast <= 0)
+			rast = 1;
+		Mix_Volume(obj->chan, 80 / rast);
+		if (rast == 5)
+			i = Mix_PlayChannel(-1,bup->fire,-1);
+	}
+}
+
 void	eventsmusic(t_main *mlx)
 {
 	SDL_Event e;
@@ -114,10 +141,29 @@ void	eventsmusic(t_main *mlx)
 						Mix_PauseMusic();
 					}
 				}
-
+				if (e.key.keysym.sym == SDLK_w)
+				{
+					mlx->plr->x++;
+					sound_eff(mlx);
+				}
+				if (e.key.keysym.sym == SDLK_z)
+					Mix_Pause(mlx->obj->chan);
 			}
 		}
 	}
+}
+
+void	initdist(t_main *mlx)
+{
+	mlx->obj = malloc(sizeof(t_obj));
+	mlx->obj->dist = 11;
+	mlx->obj->next = malloc(sizeof(t_obj));
+	mlx->obj->next->dist = 22;
+	mlx->obj->next->next = malloc(sizeof(t_obj));
+	mlx->obj->next->next->dist = 45;
+	mlx->plr = malloc(sizeof(t_plr));
+	mlx->plr->x = 0;
+	mlx->obj->chunk = Mix_LoadWAV("D:\\Coding\\doom-nuked\\sound\\fire_zkyuzme_.wav");
 }
 
 int main(int argc, char* argv[])
@@ -125,6 +171,7 @@ int main(int argc, char* argv[])
 	t_main	*mlx;
 	mlx = malloc(sizeof(t_main));
 	initsdl(mlx);
+	initdist(mlx);
 	eventsmusic(mlx);
 	closesdl(mlx->snd);
 	return 0;
