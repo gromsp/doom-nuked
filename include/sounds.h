@@ -22,7 +22,7 @@ typedef	struct		s_obj
 	t_obj_specs		*specs;
 	double			dist;
 	int 			chan;
-	Mix_Chunk		*chunk;
+	//Mix_Chunk		*chunk;
 	struct s_obj	*next;
 	struct s_obj	*prev;
 }					t_obj;

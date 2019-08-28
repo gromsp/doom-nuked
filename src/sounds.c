@@ -86,24 +86,37 @@ void 	sound_eff(t_main *mlx)
 {
 	t_bup *bup;
 	t_plr *plr;
-	t_obj *obj;
+	t_obj *tmp;
 	int rast;
 	int i;
 
 	bup = mlx->snd->chunks;
 	plr = mlx->plr;
-	obj = mlx->obj;
-	rast = obj->dist - plr->x;
-	if (rast <= 10)
+	tmp = mlx->obj;
+	while (mlx->obj->next)
 	{
-		Mix_VolumeChunk(mlx->snd->chunks->fire, 128);
-		obj->chan = Mix_PlayChannel(-1,obj->chunk,-1);
-		if (rast <= 0)
-			rast = 1;
-		Mix_Volume(obj->chan, 80 / rast);
-		if (rast == 5)
-			i = Mix_PlayChannel(-1,bup->fire,-1);
+		rast = mlx->obj->dist - plr->x;
+		if (rast < 0)
+			rast = rast * (-1);
+		if (rast <= 10)
+		{
+			if (mlx->obj->chan == -1)
+				mlx->obj->chan = Mix_PlayChannel(-1, bup->fire, -1);
+			else
+			{
+				if (rast <= 0)
+					rast = 1;
+				Mix_Volume(mlx->obj->chan, 128 / rast);
+			}
+		}
+		else if (mlx->obj->chan >= 0)
+		{
+			Mix_HaltChannel(mlx->obj->chan);
+			mlx->obj->chan = -1;
+		}
+		mlx->obj = mlx->obj->next;
 	}
+	mlx->obj = tmp;
 }
 
 void	eventsmusic(t_main *mlx)
@@ -157,13 +170,17 @@ void	initdist(t_main *mlx)
 {
 	mlx->obj = malloc(sizeof(t_obj));
 	mlx->obj->dist = 11;
+	mlx->obj->chan = -1;
 	mlx->obj->next = malloc(sizeof(t_obj));
 	mlx->obj->next->dist = 22;
+	mlx->obj->next->chan = -1;
 	mlx->obj->next->next = malloc(sizeof(t_obj));
 	mlx->obj->next->next->dist = 45;
+	mlx->obj->next->next->chan = -1;
+	mlx->obj->next->next->next = NULL;
 	mlx->plr = malloc(sizeof(t_plr));
 	mlx->plr->x = 0;
-	mlx->obj->chunk = Mix_LoadWAV("D:\\Coding\\doom-nuked\\sound\\fire_zkyuzme_.wav");
+	Mix_VolumeChunk(mlx->snd->chunks->fire, 128);
 }
 
 int main(int argc, char* argv[])
